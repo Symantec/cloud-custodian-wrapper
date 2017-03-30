@@ -1,0 +1,54 @@
+---
+  kind: "Template"
+  apiVersion: "v1"
+  metadata:
+    name: "aws-cloudcustodian"
+  objects:
+    -
+      kind: "DeploymentConfig"
+      apiVersion: "v1"
+      metadata:
+        name: "aws-cloudcustodian"
+        labels:
+          template: "aws-cloudcustodian-template"
+      spec:
+        strategy:
+          type: "Recreate"
+        triggers:
+          -
+            type: "ConfigChange"
+        replicas: 1
+        selector:
+          name: "aws-cloudcustodian"
+        template:
+          metadata:
+            labels:
+              name: "aws-cloudcustodian"
+          spec:
+            containers:
+              -
+                name: "aws-cloudcustodian-container"
+                image: "${image_url}"
+                env:
+                - name: CUSTODIAN_LIVE_FIRE
+                  value: "True"
+                volumeMounts:
+                 - name: secrets
+                   mountPath: /secrets
+                resources:
+                  requests:
+                    memory: "300Mi"
+                    cpu: "300m"
+                  limits:
+                    memory: "300Mi"
+                    cpu: "300m"
+            volumes:
+             -
+               name: secrets
+               secret:
+                 secretName: aws-cloudcustodian-secrets
+              
+  parameters:
+    -
+      name: "image_url"
+      value: "{DOCKER_REGISTRY_URL}/aws_tools/aws-cloudcustodian:latest"

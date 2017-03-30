@@ -1,0 +1,87 @@
+policies:
+
+- name: ebs-mark-unattached-deletion-recent
+  resource: ebs
+  comments: |
+    Mark any unattached EBS volumes for deletion in 3 days
+    if the volume was created in the last 3 days.
+    Volumes set to not delete on instance termination do have
+    valid use cases as data drives, but 99% of the time they
+    appear to be just garbage creation.
+  filters:
+    - Attachments: []
+    - "tag:maid_status": absent
+    - type: value
+      value: 3
+      key: CreateTime
+      op: less-than
+      value_type: age
+  actions:
+    - type: notify
+      template: mail-template.html 
+      subject: "URGENT: Your AWS Resources will be shutdown."
+      to:
+        - resource-owner
+        - resource-group
+      transport:
+        type: sqs
+        queue: {CC_SQS_URL}
+    - type: mark-for-op
+      op: delete
+      days: 3
+
+- name: ebs-mark-unattached-deletion
+  resource: ebs
+  comments: |
+    Mark any unattached EBS volumes for deletion in 3 days.
+    Volumes set to not delete on instance termination do have
+    valid use cases as data drives, but 99% of the time they
+    appear to be just garbage creation.
+  filters:
+    - Attachments: []
+    - "tag:maid_status": absent
+  actions:
+    - type: notify
+      template: mail-template.html 
+      subject: "URGENT: Your AWS Resources will be shutdown."
+      to:
+        - resource-owner
+        - resource-group
+      transport:
+        type: sqs
+        queue: {CC_SQS_URL}
+    - type: mark-for-op
+      op: delete
+      days: 30
+
+- name: ebs-unmark-attached-deletion
+  resource: ebs
+  comments: |
+    Unmark any attached EBS volumes that were scheduled for deletion
+    if they are currently attached
+  filters:
+    - type: value
+      key: "Attachments[0].Device"
+      value: not-null
+    - "tag:maid_status": not-null
+  actions:
+    - unmark
+
+- name: ebs-delete-marked
+  resource: ebs
+  comments: |
+    Delete any attached EBS volumes that were scheduled for deletion
+  filters:
+    - type: marked-for-op
+      op: delete
+  actions:
+    - type: notify
+      template: mail-template.html 
+      subject: "URGENT: Your AWS Resources will be shutdown."
+      to:
+        - resource-owner
+        - resource-group
+      transport:
+        type: sqs
+        queue: {CC_SQS_URL}
+    - delete

@@ -1,0 +1,7 @@
+aws-secrets.yml
+*.swp
+*.pyc
+out
+c7n
+src
+dry_run

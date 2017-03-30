@@ -1,0 +1,9 @@
+policies:
+
+- name: ebs-delete-marked
+  resource: ebs
+  comments: |
+    Delete any attached EBS volumes that were scheduled for deletion
+  filters:
+    - type: marked-for-op
+      op: delete
