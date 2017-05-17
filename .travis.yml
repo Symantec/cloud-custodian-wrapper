@@ -16,3 +16,4 @@ script:
   # it only validates because EMAIL_VALIDATE=True
   - ./email/ses_send_mock_jinja_email.py
   - py.test tests
+cache: pip
