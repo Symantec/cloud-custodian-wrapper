@@ -1,0 +1,70 @@
+{% macro get_header_display_name(table_header, custodian_tables_resource_metadata) -%}
+  {% if 'display_name' in custodian_tables_resource_metadata['headers'][header] %}
+    {{ custodian_tables_resource_metadata['headers'][table_header]['display_name'] }}
+  {% else %}
+    {{ table_header }}
+  {% endif %}
+{%- endmacro %}
+
+{% macro pretty_print_tags(tags, resource, action, policy, region) -%}
+  {% if tags|length > 0 %}
+    <table>
+    {% for tag in tags %}
+      {% if tag['Key'] != 'maid_status' %}
+        <tr>
+          <td style="border-right:1px solid grey; border-bottom:1px solid grey;">{{ tag['Key'] }}</td>
+          <td style="border-bottom:1px solid grey;">{{ tag['Value'] }}</td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+    </table>
+  {% endif %}
+{%- endmacro %}
+
+{% macro get_ebs_search_hyperlink(volume_id, resource, action, policy, region) -%}
+  <a href="https://console.aws.amazon.com/ec2/v2/home?region={{ region }}#Volumes:search={{ volume_id }}">{{ volume_id }}</a>
+{%- endmacro %}
+
+{% macro pretty_print_datetime(datetime_string, resource, action, policy, region) -%}
+  {{ datetime_string|date_time_format(tz_str='US/Pacific', format='%Y %b %d %H:%M %Z') }}
+{%- endmacro %}
+
+{% macro create_table_header(table_headers, resource, custodian_tables_resource_metadata) -%}
+  {% for table_header in table_headers %}
+    <th style="border:2px solid grey; text-align: center; padding: 5px;">{{ get_header_display_name(table_header, custodian_tables_resource_metadata) }}</th>
+  {% endfor %}
+{%- endmacro %}
+
+{% macro get_maid_future_action(column_name, resource, action, policy, region) -%}
+  {% for action in policy['actions'] %}
+    {% if action == 'delete' %}
+    Deleted
+    {% elif action['type'] == 'mark-for-op' %}
+      {% set future_action_date = action['days']|get_date_time_delta() %}
+      {{ action['op'] }}@{{ pretty_print_datetime(future_action_date) }}
+    {% endif %}
+  {% endfor %}
+{%- endmacro %}
+
+{% macro create_table_rows(resources, table_headers, custodian_tables_resource_metadata) -%}
+  {% for resource in resources %}
+    <tr style="border:none; border-collapse:collapse">
+    {% for columnName in table_headers %}
+      {% if 'macros' in custodian_tables_resource_metadata['headers'][columnName] %}
+        {% set macro = custodian_tables_resource_metadata['headers'][columnName]['macros'][0] %}
+          <td style="border:2px solid grey; padding:4px">{{ macro(resource[columnName], resource, action, policy, region) }}</td>
+      {% else %}
+        <td style="border:2px solid grey; padding:4px">{{ resource[columnName] }}</td>
+      {% endif %}
+    {% endfor %}
+    </tr>
+  {% endfor %}
+{%- endmacro %}
+
+{% set custodian_tables = { 'ebs': { 'headers': { 'VolumeId': { 'macros': [get_ebs_search_hyperlink] }, 'Future action': { 'display_name': 'Future Action', 'macros': [get_maid_future_action] }, 'CreateTime': { 'display_name': 'CreationTime', 'macros': [pretty_print_datetime] }, 'State': '', 'Tags': { 'macros': [pretty_print_tags] } } } } %}
+{% set aws_resource_type = policy['resource'] %}
+{% set table_headers = custodian_tables[aws_resource_type]['headers'].keys()|sort() %}
+{% set custodian_tables_resource_metadata = custodian_tables[aws_resource_type] %}
+{{ create_table_header(table_headers, aws_resource_type, custodian_tables_resource_metadata) }}
+{{ create_table_rows(resources, table_headers, custodian_tables_resource_metadata) }}
+

@@ -37,11 +37,11 @@
                    mountPath: /secrets
                 resources:
                   requests:
-                    memory: "300Mi"
-                    cpu: "300m"
+                    memory: "2000Mi"
+                    cpu: "2000m"
                   limits:
-                    memory: "300Mi"
-                    cpu: "300m"
+                    memory: "2000Mi"
+                    cpu: "2000m"
             volumes:
              -
                name: secrets

@@ -1,7 +1,13 @@
+email/email-config.yml
+aws_secrets.yml
 aws-secrets.yml
+mail-template.html.j2
 *.swp
 *.pyc
+*.cache
+node_modules
 out
+source
 c7n
 src
 dry_run

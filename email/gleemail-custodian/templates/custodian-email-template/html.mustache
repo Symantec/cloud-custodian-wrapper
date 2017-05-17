@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
+<html lang="en">
+  <head>
+    <style></style>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>.</title>
+  </head>
+  <body>
+    <gm-stack>
+      <gm-box padding="20 20 20 20">
+        <p class="redalert">
+          <span class="underline">PLEASE NOTE:</span> FAILURE TO TAKE IMMEDIATE ACTION WILL RESULT IN PERMANENT LOSS OF RESOURCES & DATA IN AWS. PLEASE DO NOT DELAY. REPLIES TO THIS EMAIL ARE NOT MONITORED.
+        </p>
+      </gm-box>
+
+      <gm-box padding="20 20 20 20" class="grey-bg">
+        <strong>What is this email about?</strong><br>
+        This email is sent by Cloud Custodian - a CPE platform service used for scanning and listing AWS resources that are unused, incorrectly tagged or underutilized. Cloud Custodian also terminates the resources if no corrective action is taken. The objective is to optimize COMPANY_NAME use of AWS resources and enforce proper tagging for cost allocations across different business units or groups at COMPANY_NAME. This email lists all AWS resources, and states the necessary actions for the owners of those resources. For more information, refer to the <a href="COMPANY_TAGGING_POLICY_URL">AWS Tagging Policy</a>.
+      </gm-box>
+
+      <gm-box padding="20 20 20 20">
+        <br>
+        <table>
+          <tr>
+            <td class="nowrap cellpadding"><strong>AWS ACCOUNT NAME</strong></td>
+            <td class="cellpadding"><a href="https://{{ account }}.signin.aws.amazon.com/console">{{ account }}</a></td>
+          </tr>
+          <tr>
+            <td class="nowrap cellpadding"><strong>AWS REGION NAME</strong></td>
+            <td class="cellpadding">{{ region }}</td>
+          </tr>
+          <tr>
+            <td class="nowrap cellpadding"><strong>POLICY NAME</strong></td>
+            <td class="cellpadding">{{ policy['name'] }}</td>
+          </tr>
+          <tr>
+            <td class="nowrap cellpadding"><strong>POLICY ACTION</strong></td>
+            <td class="cellpadding">{{ policy['comments'] }}</td>
+          </tr>
+        </table>
+        <br>
+        <table cellspacing="0" cellpadding="0" border="0" style="border:none; border-collapse:collapse; border-spacing:0">
+          custodianresourcetable
+        </table>
+      </gm-box>
+
+      <gm-box padding="30 9999 25 9999" class="grey-bg">
+        <img src="COMPANY_LOGO_URL" alt="company logo" >
+        <p>© 2017 COMPANY_NAME</p>
+      </gm-box>
+    </gm-stack>
+  </body>
+</html>
