@@ -11,17 +11,17 @@ policies:
     actions:
       - stop
 
-  # - name: onhours-start
-  #   resource: ec2
-  #   filters:
-  #     - type: onhour
-  #       tag: StartAfterHours
-  #       default_tz: pt
-  #       onhour: 12
-  #     - type: value
-  #       value: 1
-  #       key: LaunchTime
-  #       op: less-than
-  #       value_type: age
-  #   actions:
-  #     - start
+  - name: onhours-start
+    resource: ec2
+    filters:
+      - type: onhour
+        tag: StartAfterHours
+        default_tz: pt
+        onhour: 12
+      - type: value
+        value: 1
+        key: LaunchTime
+        op: less-than
+        value_type: age
+    actions:
+      - start

@@ -4,4 +4,6 @@ python:
 install:
   - pip install -r requirements_dev.txt
 # commands to run, must exit 0 to pass
-script: flake8 
+script:
+  - flake8
+  - py.test tests

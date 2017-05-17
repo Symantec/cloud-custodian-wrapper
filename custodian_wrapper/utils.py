@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import boto3
 import datetime
 import glob
@@ -8,8 +9,25 @@ import sys
 import time
 import yaml
 
+from c7n.commands import validate as cc_validate_yaml
 from dateutil.tz import gettz
 from pkg_resources import load_entry_point
+
+
+def get_all_custodian_yaml_files(policy_dir='/custodian/policies/*'):
+    return glob.glob(policy_dir)
+
+
+def validate_custodian_yaml_files(custodian_yaml_files):
+    cc_validate_options = argparse.Namespace(
+        command = 'c7n.commands.validate',
+        config  = None,
+        configs = custodian_yaml_files,
+        debug=False,
+        subparser='validate',
+        verbose=False
+    )
+    cc_validate_yaml(cc_validate_options)
 
 
 def get_secrets():
