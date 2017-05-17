@@ -1,0 +1,20 @@
+policies:
+
+- name: ec2-delete-on-expiresat-tag 
+  resource: ec2
+  comments: |
+    Note this uses python dateutil.parser.parse to check the value. If the value is
+    parseable by dateutil.parser.parse, it will work.
+    Examples:
+    2017-05-12 corresponds to May 12th, 2017
+    1994-11-05T08:15:30-05:00 corresponds to November 5, 1994, 8:15:30 am, US Eastern Standard Time.
+    1994-11-05T13:15:30Z corresponds to the same instant.
+  filters:
+     - type: value
+       value_type: age
+       op: gt
+       key: tag:ExpiresAt
+       value: 0
+  actions:
+    - type: terminate
+      force: true

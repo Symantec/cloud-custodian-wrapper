@@ -1,8 +1,0 @@
-queue_url: https://sqs.us-east-1.amazonaws.com/xxxxx/cloudcustodian-mailer
-role: arn:aws:iam::xxxxx:role/cloudcustodian-mailer
-region: us-east-1
-from_address: DL-AWS-CloudCustodian@example.com
-
-contact_tags:
-  - OwnerEmail
-  - SupportEmail

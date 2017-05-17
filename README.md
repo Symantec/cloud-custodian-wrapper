@@ -29,21 +29,26 @@
 - CUSTODIAN_REPORTS_ONLY_MODE=True ./run_clean_accounts_locally.py
 
 # TODO
-- cleanup the EMAIL template and make it look more pretty !!!
-- setup an email testing pipeline that is faster than using lambda (generate the template/email on localhost)
-- check with easyprocess and raise an error if there is an exit 1?
-- catch errors on run and notify slack channel if the errors repeat often? this could be tricky with so many runs happening, but is important.
+- catch errors on run and notify slack channel if the errors repeat often? this could be tricky with so many runs happening, but is important to know where bugs are and to squash them (eg caching issues).
 - have emails sent a day before the termination
+- write code that checks all the assume roles and makes sure I can send to the SQS queue from all assume roles as a validation
+- write a bunch of unit tests proving xyz accounts/regions get touched, and that matched the wrapper config
 - kill off some of the global variables I'm abusing, and more explicitly pass input parameters
 - setup sns topic for slack notifications
+- update jinja so it uses different template prefixes and doesn't interfere with mustache
 - setup read only iam credentials/roles for dry-run/reports to run in
-- stick to a stable version of cloud custodian, and stop using HEAD
-- write documentation describing the policy
-- implement priorities around policies, some policies should be executed before other policies.
-- internal DL email routing
-- tag set to make custodian not be able to delete (ldap, mirrors, dns, federation broker), preferred images can't be deleted also
-- white list with value from, to white list certain resources
+- documentation
+- render email on openshift deployment
+- should switch the ses mailer to sending emails with c7n_mailer functions directly
+- do cache validation checks after a run finishes? (cnpickle loads perhaps, if it fails delete it)
+- do an optional secret comparison with openshift on deploy?
+- only print the red bold font if priority_header is set and is 1?
+- sort policies in a way so they cause the least throttling by boto (get all repeated account/region combinations, and evenly distribute them in the array before multiprocessing)
+- tag set to make custodian not be able to delete (ldap, mirrors, dns, federation broker), preferred images can't be deleted also (or value_from filters)
+- flake8 tests dir
+- find out why emails can't be forwarded
 - make a lot more policies (SGs, EC2 tags, RDS tags, etc)
 - make something that validates the wrapper-config.yml
 - make a better API function to call custodian runs (upstream)
 - allow the api functions to return log output as a string variable, and not send to stdout/err (upstream)
+- send metrics to LMM (need a significant overhaul to how custodian does metrics?)

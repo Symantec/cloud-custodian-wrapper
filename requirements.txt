@@ -1,8 +1,6 @@
 argcomplete>=1.8.2
 boto3>=1.4.4
-boto
-botocore>=1.5.13
--e git+https://github.com/capitalone/cloud-custodian.git#egg=c7n
+-e git+https://github.com/JohnTheodore/cloud-custodian.git@less_log_spam#egg=c7n
 docutils>=0.12
 EasyProcess
 functools32==3.2.3-2
