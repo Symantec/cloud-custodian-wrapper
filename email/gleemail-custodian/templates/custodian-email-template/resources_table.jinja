@@ -30,9 +30,11 @@
 {%- endmacro %}
 
 {% macro create_table_header(table_headers, resource, custodian_tables_resource_metadata) -%}
+  <tr>
   {% for table_header in table_headers %}
     <th style="border:2px solid grey; text-align: center; padding: 5px;">{{ get_header_display_name(table_header, custodian_tables_resource_metadata) }}</th>
   {% endfor %}
+  </tr>
 {%- endmacro %}
 
 {% macro get_maid_future_action(column_name, resource, action, policy, region) -%}

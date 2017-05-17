@@ -1,9 +1,18 @@
 language: python
 python:
   - "2.7"
+env:
+  - EMAIL_VALIDATE=True COMPANY_NAME=Acme COMPANY_LOGO_URL=http://cdn2us.denofgeek.com/sites/denofgeekus/files/acme.jpg COMPANY_TAGGING_POLICY_URL=https://en.wikipedia.org/wiki/Acme
 install:
   - pip install -r requirements_dev.txt
+  - cd email; ./install_dev_email_tools.sh; cd ..;
+  - sudo ln -s `pwd` /custodian
+  - wget https://github.com/htacg/tidy-html5/releases/download/5.4.0/tidy-5.4.0-64bit.deb; sudo dpkg -i tidy-5.4.0-64bit.deb;
 # commands to run, must exit 0 to pass
 script:
   - flake8
+  - custodian validate `ls -rtd policies/*`
+  # this will use tidylib to validate the rendered html email (using ebs garbage collect)
+  # it only validates because EMAIL_VALIDATE=True
+  - ./email/ses_send_mock_jinja_email.py
   - py.test tests

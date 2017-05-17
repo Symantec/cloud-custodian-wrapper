@@ -12,6 +12,7 @@ from dateutil import parser
 from dateutil.tz import gettz
 from easyprocess import EasyProcess
 from email.mime.text import MIMEText
+from tidylib import tidy_document
 
 reload(sys)
 sys.setdefaultencoding('UTF8')
@@ -219,6 +220,58 @@ def get_gleemail_template():
     return ugly_jinja_html
 
 
+def get_final_rendered_email_message(unrendered_email_message):
+    return get_custodian_policy_email(
+        final_unrendered_email_template,
+        resources=email_metadata['ebs']['resources'],
+        policy=email_metadata['ebs']['policy'],
+        action=email_metadata['ebs']['action'],
+        account=email_metadata['account'],
+        region=email_metadata['region'])
+
+
+def get_final_unrendered_email_message():
+    rendered_gleemail = get_gleemail_template()
+    rendered_gleemail = '%s%s' % (
+        '<!DOCTYPE html>',
+        rendered_gleemail)
+    jinja_template = get_file_data(
+        'email/gleemail-custodian/templates/'
+        'custodian-email-template/resources_table.jinja'
+    )
+    final_unrendered_email_template = rendered_gleemail.replace(
+        'custodianresourcetable', jinja_template)
+    env_vars = ['COMPANY_NAME', 'COMPANY_LOGO_URL', 'COMPANY_TAGGING_POLICY_URL']
+    for env_var in env_vars:
+        env_var_value = os.environ.get(env_var, None)
+        if not env_var_value:
+            exit_msg = 'Missing ENV variable: %s' % env_var
+            sys.exit(exit_msg)
+        final_unrendered_email_template = final_unrendered_email_template.replace(
+            env_var, env_var_value
+        )
+    return final_unrendered_email_template
+
+
+def tidylib_validate_html(rendered_html_data):
+    document, errors = tidy_document(rendered_html_data, options={'numeric-entities':1})
+    if errors:
+        print(rendered_html_data)
+        print(errors)
+        sys.exit(1)
+    else:
+        sys.exit(0)
+
+
+custodian_mail_template_location = '/custodian/email/msg-templates/mail-template.html.j2'
+final_unrendered_email_template = get_final_unrendered_email_message()
+final_rendered_email_template = get_final_rendered_email_message(final_unrendered_email_template)
+
+
+validate = bool(os.environ.get('EMAIL_VALIDATE', False))
+if validate:
+    tidylib_validate_html(final_rendered_email_template)
+
 email_to = os.environ.get('EMAIL_TO', False)
 email_from = os.environ.get('EMAIL_FROM', False)
 if not email_to or not email_from:
@@ -227,32 +280,6 @@ if not email_to or not email_from:
         ' EMAIL_FROM=ses_allowed_email@example.com ./ses_send_mock_jinja_email.py'
     )
 
-custodian_mail_template_location = '/custodian/email/msg-templates/mail-template.html.j2'
-rendered_gleemail = get_gleemail_template()
-rendered_gleemail = '%s%s' % (
-    '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">',
-    rendered_gleemail)
-jinja_template = get_file_data(
-    '/custodian/email/gleemail-custodian/templates/custodian-email-template/resources_table.jinja'
-)
-final_unrendered_email_template = rendered_gleemail.replace(
-    'custodianresourcetable', jinja_template)
-env_vars = ['COMPANY_NAME', 'COMPANY_LOGO_URL', 'COMPANY_TAGGING_POLICY_URL']
-for env_var in env_vars:
-    env_var_value = os.environ.get(env_var, None)
-    if not env_var_value:
-        exit_msg = 'Missing ENV variable: %s' % env_var
-        sys.exit(exit_msg)
-    final_unrendered_email_template = final_unrendered_email_template.replace(
-        env_var, env_var_value
-    )
-final_rendered_email_template = get_custodian_policy_email(
-    final_unrendered_email_template,
-    resources=email_metadata['ebs']['resources'],
-    policy=email_metadata['ebs']['policy'],
-    action=email_metadata['ebs']['action'],
-    account=email_metadata['account'],
-    region=email_metadata['region'])
 write_file(
     file_data=final_unrendered_email_template,
     file_dest=custodian_mail_template_location)

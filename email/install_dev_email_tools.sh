@@ -16,13 +16,6 @@ else
   nvm install 0.10
 fi
 
-if pip show BeautifulSoup > /dev/null; then
-  echo "BeautifulSoup pip package is already installed"
-else
-  echo "pip installing BeautifulSoup"
-  pip install BeautifulSoup
-fi
-
 # install gleemail
 if ls node_modules/gleemail/bin/gleemail > /dev/null; then
   echo "gleemail                  is already installed"
